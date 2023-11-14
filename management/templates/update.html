@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Update
+{% endblock %}
+
+{% block scripts %}
+    <script src='{% static 'js/ajax.js' %}'></script>
+    <script src='{% static 'js/update.js' %}'></script>
+    <script>
+        var fwUpdateCompleteUrl = "{% url 'firmware_update_complete' 0 %}";
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-header">
+            New Firmware File
+        </div>
+
+        <div class="card-body">
+            <form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>
+                <div class="row">
+                    <div class="col-4 mb-3">
+                        <label for="formFile" class="form-label">Firmware binary file</label>
+                        <input class="form-control" type="file" id="formFile" name="update" accept=".bin">
+                    </div>
+                    <div class="col-1 mb-3 d-flex align-items-end justify-content-end">
+                        <button type="submit" class="btn btn-danger" id="form-submit-btn">Start Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="card">
+        <div class="card-header">
+            All active Boards
+        </div>
+
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Device ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">IP</th>
+                    <th scope="col">Last Flash</th>
+                    <th scope="col">Progress</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for board in boards %}
+                    <tr class="board-row" data-ip="{{ board.ip }}" data-id="{{ board.id }}">
+                        <td>
+                            <input class="form-check-input do-update-cb" type="checkbox" value=""
+                                   id="update-cb-{{ board.id }}">
+                        </td>
+                        <td>{{ board.id }}</td>
+                        <td>{{ board.device_id }}</td>
+                        <td>{{ board.name }}</td>
+                        <td>{{ board.ip }}</td>
+                        <td>{{ board.last_flash_time }}</td>
+                        <td>
+                            <div class="row">
+                                <div class="col-3">
+                                    <span id="progress-text-{{ board.id }}">0%</span>
+                                </div>
+                                <div class="col-9">
+                                    <div class="progress mb-1 mt-1">
+                                        <div id="progress-bar-{{ board.id }}" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                             style="width: 0" aria-valuenow="0"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

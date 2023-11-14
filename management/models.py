@@ -1,0 +1,21 @@
+import datetime
+
+from django.db import models
+
+
+class Boards(models.Model):
+    id                    = models.BigAutoField(primary_key=True)
+    device_id             = models.IntegerField(null=False)
+    name                  = models.TextField(null=True)
+    ip                    = models.TextField(null=False, max_length=32)
+    last_flash_time       = models.DateTimeField(null=True)
+    last_flash_successful = models.BooleanField(null=False, default=True)
+    last_ping_time        = models.DateTimeField(null=True)
+
+    @property
+    def active(self) -> bool:
+        """ Returns True if the last ping was not too old """
+        return (datetime.datetime.utcnow() - self.last_ping_time).seconds < 5
+
+    def __repr__(self):
+        return f'Board({self.id}, {self.name})'
