@@ -1,0 +1,44 @@
+{% extends 'raw_base.html' %}
+{% load static %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+{% endblock %}
+
+{% block body %}
+    <main class="form-signin w-100 m-auto mt-5 pt-5">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-3 mx-auto">
+                    <img class="mb-4" src="{% static 'img/ndn_logo.png' %}" alt="" width="60">
+                </div>
+            </div>
+
+            <div class="row text-center">
+                <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+            </div>
+
+            <div class="form-floating">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username">
+                <label for="username">Username</label>
+            </div>
+            <div class="form-floating">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                <label for="password">Password</label>
+            </div>
+
+            <div class="form-check text-start my-3">
+                <input class="form-check-input" type="checkbox" id="remember-me" name="remember-me">
+                <label class="form-check-label" for="remember-me">
+                    Remember me
+                </label>
+            </div>
+            <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+        </form>
+    </main>
+{% endblock %}

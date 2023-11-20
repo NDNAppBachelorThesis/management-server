@@ -1,0 +1,1 @@
+# This contains a management server for the NDN-IoT project

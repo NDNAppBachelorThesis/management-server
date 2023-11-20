@@ -1,53 +1,46 @@
+{% extends 'raw_base.html' %}
 {% load static %}
 
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    {% block styles %}{% endblock %}
-</head>
-<body>
 
+{% block body %}
 
-<div class="top-bar">
-    <div class="container">
-        <header class="d-flex flex-wrap justify-content-center py-3">
-            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-                <img src="{% static 'img/ndn_logo.png' %}" width="50" class="header-logo">
-                <span class="fs-4">NDN Management</span>
-            </a>
+    <div class="top-bar">
+        <div class="container">
+            <header class="d-flex flex-wrap justify-content-center py-3">
+                <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+                    <img src="{% static 'img/ndn_logo.png' %}" width="50" class="header-logo">
+                    <span class="fs-4">NDN Management</span>
+                </a>
 
-            {% with url_name=request.resolver_match.url_name %}
-                <ul class="nav nav-pills">
-                    <li class="nav-item"><a href="{% url 'index' %}" class="nav-link {% if url_name == 'index' %}active{% endif %}" aria-current="page">Home</a></li>
-                    <li class="nav-item"><a href="{% url 'boards' %}" class="nav-link {% if url_name == 'boards' %}active{% endif %}" aria-current="page">Boards</a></li>
-                    <li class="nav-item"><a href="{% url 'update' %}" class="nav-link {% if url_name == 'update' %}active{% endif %}" aria-current="page">OTA Update</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Logout</a></li>
-                </ul>
-            {% endwith %}
-        </header>
+                {% with url_name=request.resolver_match.url_name %}
+                    <ul class="nav nav-pills">
+                        <li class="nav-item"><a href="{% url 'index' %}"
+                                                class="nav-link {% if url_name == 'index' %}active{% endif %}"
+                                                aria-current="page">Home</a></li>
+                        <li class="nav-item"><a href="{% url 'boards' %}"
+                                                class="nav-link {% if url_name == 'boards' %}active{% endif %}"
+                                                aria-current="page">Boards</a></li>
+                        <li class="nav-item"><a href="{% url 'update' %}"
+                                                class="nav-link {% if url_name == 'update' %}active{% endif %}"
+                                                aria-current="page">OTA Update</a></li>
+                        <li class="nav-item"><a href="{% url 'settings' %}"
+                                                class="nav-link {% if url_name == 'settings' %}active{% endif %}"
+                                                aria-current="page">Settings</a></li>
+                        <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
+                    </ul>
+                {% endwith %}
+            </header>
+        </div>
     </div>
-</div>
 
 
-<div class="content-wrapper">
-    {% csrf_token %}
-    <div class="content">
+    <div class="content-wrapper">
+        {% csrf_token %}
+        <div class="content">
 
-        {% block content %}{% endblock %}
+            {% block content %}{% endblock %}
 
+        </div>
     </div>
-</div>
 
-
-<script src="{% static 'js/bootstrap/bootstrap.bundle.min.js' %}"></script>
-{% block scripts %}{% endblock %}
-
-</body>
-</html>
+{% endblock %}

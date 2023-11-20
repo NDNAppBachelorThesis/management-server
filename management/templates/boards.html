@@ -30,7 +30,13 @@
                         <td>{{ board.device_id }}</td>
                         <td>{{ board.name }}</td>
                         <td>{{ board.ip }}</td>
-                        <td>{{ board.active }}</td>
+                        <td>
+                            {% if board.active %}
+                                <img src="{% static 'img/online.png' %}" width="25" alt="Online">
+                            {% else %}
+                                <img src="{% static 'img/offline.png' %}" width="25" alt="Offline">
+                            {% endif %}
+                        </td>
                         <td>{{ board.last_flash_time }} ({% if board.last_flash_successful %}success{% else %}failed{% endif %})</td>
                     </tr>
                 {% endfor %}

@@ -19,3 +19,15 @@ class Boards(models.Model):
 
     def __repr__(self):
         return f'Board({self.id}, {self.name})'
+
+
+class Settings(models.Model):
+    id              = models.BigAutoField(primary_key=True)
+    ndn_router_ip   = models.TextField(null=True, default='')
+
+    @staticmethod
+    def get_instance() -> 'Settings':
+        return Settings.objects.get_or_create(id=1)[0]
+
+    def __repr__(self):
+        return f'Settings()'

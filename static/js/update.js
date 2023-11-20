@@ -31,8 +31,7 @@ window.onload = function () {
                 var rowData = row.dataset;
                 console.log("Updating firmware for " + rowData.ip);
                 let progressBarElem = $('#progress-bar-' + rowData.id);
-                reportUpdateStatus(rowData.id, true)
-                return;
+
                 $.when($.ajax({
                     type: 'POST',
                     url: 'http://' + rowData.ip + '/update',
