@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+import requests
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -118,6 +119,26 @@ class SettingsView(NDNUtilMixin, TemplateView):
     def get_context_data(self):
         return {
             'settings': Settings.get_instance(),
+        }
+
+
+class LogsView(NDNUtilMixin, TemplateView):
+    template_name = 'logs.html'
+
+    def get_context_data(self, board_id: int):
+        board = Boards.objects.get(id=board_id)
+
+        log_text = 'Device is offline'
+        if board.active:
+            try:
+                r = requests.get(f'http://{board.ip}/log', timeout=3)
+                log_text = r.text
+            except Exception:
+                log_text = 'Could not connect to device.'
+
+        return {
+            'board': board,
+            'log': log_text,
         }
 
 

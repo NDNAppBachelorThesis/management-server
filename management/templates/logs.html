@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Logs
+{% endblock %}
+
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/board_logs.css' %}">
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="card">
+        <div class="card-header">
+            Board logs
+        </div>
+
+        <div class="card-body">
+            <div class="log-body">
+                <pre>
+                    <output>{{ log }}</output>
+                </pre>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

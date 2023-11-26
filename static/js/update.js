@@ -25,12 +25,16 @@ window.onload = function () {
         var boardRows = document.querySelectorAll(".board-row")
 
         boardRows.forEach(function (row) {
-            var doUpdateDb = row.querySelector(".do-update-cb");
+            const doUpdateDb = row.querySelector(".do-update-cb");
+            const rowData = row.dataset;
+            let progressBarElem = $('#progress-bar-' + rowData.id);
+            // Reset colors
+            progressBarElem.removeClass("bg-success")
+            progressBarElem.removeClass("bg-danger")
+            progressBarElem.addClass("progress-bar-striped")
 
             if (doUpdateDb && doUpdateDb.checked) {
-                var rowData = row.dataset;
                 console.log("Updating firmware for " + rowData.ip);
-                let progressBarElem = $('#progress-bar-' + rowData.id);
 
                 $.when($.ajax({
                     type: 'POST',
@@ -38,10 +42,8 @@ window.onload = function () {
                     data: formData,
                     contentType: false,
                     processData: false,
+                    timeout: 60000,
                     xhr: function () {
-                        // Reset colors
-                        progressBarElem.removeClass("bg-success", "bg-danger")
-                        progressBarElem.addClass("progress-bar-striped")
                         var xhr = new window.XMLHttpRequest();
                         xhr.upload.addEventListener('progress', function (evt) {
                             if (evt.lengthComputable) {

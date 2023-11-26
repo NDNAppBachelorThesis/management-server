@@ -1,0 +1,24 @@
+.log-body {
+    background-color: black;
+    background-image: radial-gradient(rgba(19, 47, 7, 0.75), black 120%);
+    margin: 0;
+    overflow: hidden;
+    padding: 2rem;
+    color: white;
+    font: 1.2rem Inconsolata, monospace;
+    text-shadow: 0 0 5px #C8C8C8;
+    border-radius: 8px;
+    justify-content: start;
+    align-items: start;
+    max-height: 700px;
+    overflow-y: scroll;
+}
+
+::selection {
+    background: #0080FF;
+    text-shadow: none;
+}
+
+pre {
+    margin: 0;
+}
