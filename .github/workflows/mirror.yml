@@ -12,6 +12,14 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: derteufelqwe
+          password: ${{secrets.GITHUB_TOKEN}}
+
       - name: "Build container"
         run: |
           docker build . --tag ghcr.io/derteufelqwe/ndn-management:latest
