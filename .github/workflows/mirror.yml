@@ -24,3 +24,4 @@ jobs:
         run: |
           docker build . --tag ghcr.io/derteufelqwe/ndn-management:latest
           docker push ghcr.io/derteufelqwe/ndn-management:latest
+
