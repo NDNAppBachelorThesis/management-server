@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+
+  management:
+    image: ndn-management:latest
+    ports:
+      - "3000:8080"
+    environment:
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=root
+    volumes:
+      - "C:/Users/arne-/Git/ndn-management/db:/server/db"
