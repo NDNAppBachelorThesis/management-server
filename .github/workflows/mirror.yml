@@ -7,6 +7,7 @@ on:
 
 jobs:
   build_container:
+    permissions: write-all
     name: "Build docker container"
     runs-on: ubuntu-latest
     steps:
