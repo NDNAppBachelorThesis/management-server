@@ -66,7 +66,7 @@ class BoardsView(NDNUtilMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         boards = list(Boards.objects.all())
-        boards.sort(key=lambda b: (b.active, b.id))
+        boards.sort(key=lambda b: (b.active, b.id), reverse=True)
 
         return {
             'boards': boards,

@@ -1,28 +1,17 @@
-name: Build docker image
-on:
-  push:
-    branches:
-      - master
-      - main
+name: Mirroring
+on: [ push, delete ]
 
 jobs:
-  build_container:
-    permissions: write-all
-    name: "Build docker container"
+  to_gitlab:
+    name: "Mirror to Gitlab"
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
-
-      - name: 'Login to GitHub Container Registry'
-        uses: docker/login-action@v1
+      - uses: actions/checkout@v3
         with:
-          registry: ghcr.io
-          username: ndnappbachelorthesis
-          password: ${{secrets.GITHUB_TOKEN}}
-
-      - name: "Build container"
-        run: |
-          docker build . --tag ghcr.io/ndnappbachelorthesis/ndn-management:latest
-          docker push ghcr.io/ndnappbachelorthesis/ndn-management:latest
-
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@git.itm.uni-luebeck.de:arne.matthes/management.git
+          ssh_private_key:
+            ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}

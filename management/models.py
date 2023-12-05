@@ -15,7 +15,7 @@ class Boards(models.Model):
     @property
     def active(self) -> bool:
         """ Returns True if the last ping was not too old """
-        return (datetime.datetime.utcnow() - self.last_ping_time).seconds < 5
+        return (datetime.datetime.utcnow() - self.last_ping_time).seconds < 10
 
     def __repr__(self):
         return f'Board({self.id}, {self.name})'
