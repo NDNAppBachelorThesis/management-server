@@ -1,5 +1,5 @@
-import datetime
 import json
+import os
 import re
 import requests
 
@@ -14,6 +14,7 @@ from django.utils.http import urlencode
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
+import docker
 
 from management.models import *
 
@@ -148,12 +149,53 @@ class LogsView(NDNUtilMixin, TemplateView):
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterBoard(View):
 
+    def _get_nfd_container(self, docker_client: docker.DockerClient):
+        containers = docker_client.containers.list()
+        for container in containers:
+            for tag in container.image.tags:
+                if tag.startswith('derteufelqwe/ndn-nfd'):
+                    return container
+
     def post(self, request: WSGIRequest):
         data = json.loads(request.body)
+        deviceIp = data["ip"]
+        deviceId = data["deviceId"]
 
         board = Boards.objects.get_or_create(device_id=data['deviceId'])[0]
-        board.ip = data['ip']
+        board.ip = deviceIp
         board.save()
+
+        # Try register board at NFD
+        try:
+            if os.getenv("DEBUG") == "true":
+                docker_client = docker.DockerClient(base_url='tcp://192.168.178.179:2375')
+            else:
+                docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+            docker_client.ping()
+
+            try:
+                nfd_container = self._get_nfd_container(docker_client)
+                cmd_result1 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/{deviceId}"')
+                cmd_result2 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/discovery"')
+
+                if cmd_result1.exit_code != 0:
+                    print(f'Failed to add NFD route for {deviceId} ({deviceIp}).\n'
+                          f'Exit code: {cmd_result1.exit_code}\n'
+                          f'Output:\n '
+                          f'{cmd_result1.output.decode()}')
+                elif cmd_result2.exit_code != 0:
+                    print(f'Failed to add NFD discovery route for {deviceId} ({deviceIp}).\n'
+                          f'Exit code: {cmd_result2.exit_code}\n'
+                          f'Output:\n '
+                          f'{cmd_result2.output.decode()}')
+                else:
+                    print(f'Added NFD routes for {deviceId} ({deviceIp})')
+            except Exception as e:
+                print(f"Failed to register NFD route in docker. Exception: {e}")
+
+        except Exception:
+            print('Could not connect to docker daemon')
+
 
         return HttpResponse("OK")
 
