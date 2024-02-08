@@ -3,6 +3,7 @@ LABEL org.opencontainers.image.source = "https://github.com/NDNAppBachelorThesis
 
 STOPSIGNAL SIGINT
 EXPOSE 8080
+EXPOSE 32200
 
 ENV HOST_IP=""
 ENV DJANGO_SUPERUSER_USERNAME=admin
