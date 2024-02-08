@@ -2,7 +2,7 @@ FROM python:3.9.6-slim
 LABEL org.opencontainers.image.source = "https://github.com/NDNAppBachelorThesis/management-server"
 
 STOPSIGNAL SIGINT
-EXPOSE 8080
+EXPOSE 3000
 EXPOSE 32200/udp
 
 ENV HOST_IP=""
