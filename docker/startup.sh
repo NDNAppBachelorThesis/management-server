@@ -14,11 +14,14 @@ trap _term SIGINT
 python manage.py migrate
 python manage.py createsuperuser --no-input || true
 
-python UDPReceiver.py &
+echo "Starting UDPReceiver..."
+# python -u UDPReceiver.py &
 child1=$!
-python manage.py runserver --noreload 0.0.0.0:8080 &
+echo "Starting Django webserver..."
+python -u manage.py runserver --noreload 0.0.0.0:8080 &
 child2=$!
 
+echo "Processes started successfully"
 # Wait for any process to exit
 wait -n
 
