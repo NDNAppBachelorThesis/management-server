@@ -4,6 +4,7 @@ LABEL org.opencontainers.image.source = "https://github.com/NDNAppBachelorThesis
 STOPSIGNAL SIGINT
 EXPOSE 8080
 
+ENV HOST_IP=""
 ENV DJANGO_SUPERUSER_USERNAME=admin
 ENV DJANGO_SUPERUSER_EMAIL=admin@example.com
 ENV DJANGO_SUPERUSER_PASSWORD=root
@@ -17,4 +18,4 @@ ENV PYTHONPATH=$PYTHONPATH:/server
 
 RUN python3 manage.py collectstatic
 
-CMD ["sh", "-c", "python manage.py migrate && (python manage.py createsuperuser --no-input || true) && exec python manage.py runserver --noreload 0.0.0.0:8080"]
+CMD ["bash", "docker/startup.sh"]
