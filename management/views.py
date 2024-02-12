@@ -1,6 +1,8 @@
 import json
 import os
 import re
+from typing import List
+
 import requests
 
 from django.contrib.auth import authenticate, login, logout
@@ -15,8 +17,28 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 import docker
+from docker.models.containers import Container
 
 from management.models import *
+
+
+def get_docker_client():
+    """
+    Returns the docker client if possible
+    """
+
+    try:
+        if os.getenv("DEBUG") == "true":
+            docker_client = docker.DockerClient(base_url='tcp://192.168.178.179:2375')
+        else:
+            docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+        docker_client.ping()
+        return docker_client
+
+    except Exception:
+        print('Could not connect to docker daemon')
+
+    return None
 
 
 class NDNUtilMixin(LoginRequiredMixin):
@@ -26,9 +48,57 @@ class NDNUtilMixin(LoginRequiredMixin):
 class IndexView(NDNUtilMixin, TemplateView):
     template_name = "index.html"
 
-    def get_context_data(self, **kwargs):
-        return {
+    def _get_container_by_name(self, containers: List[Container], name=None):
+        for container in containers:
+            if name and container.name == name:
+                return container
 
+    def get_context_data(self, **kwargs):
+        mgmt_container = None
+        nfd_container = None
+        grafana_container = None
+        crate_container = None
+        mongo_container = None
+        orion_container = None
+        quantumleap_container = None
+        link_quality_handler_container = None
+        ndn_adapter_container = None
+
+        all_operational = None
+
+        if docker_client := get_docker_client():
+            containers = docker_client.containers.list()
+            mgmt_container = self._get_container_by_name(containers, 'ndn-app-management-1')
+            nfd_container = self._get_container_by_name(containers, 'ndn-app-nfd-1')
+            grafana_container = self._get_container_by_name(containers, 'ndn-app-grafana-1')
+            crate_container = self._get_container_by_name(containers, 'ndn-app-crate-1')
+            mongo_container = self._get_container_by_name(containers, 'ndn-app-mongo-db-1')
+            orion_container = self._get_container_by_name(containers, "ndn-app-orion-1")
+            quantumleap_container = self._get_container_by_name(containers, 'ndn-app-quantumleap-1')
+            link_quality_handler_container = self._get_container_by_name(containers, 'ndn-app-ndn-link-quality-handler-1')
+            ndn_adapter_container = self._get_container_by_name(containers, 'ndn-app-ndn-adapter-1')
+
+            all_containers = [
+                mgmt_container, nfd_container, grafana_container, crate_container, mongo_container, orion_container,
+                quantumleap_container, link_quality_handler_container, ndn_adapter_container
+            ]
+
+            all_stati = ['offline' if c is None else c.status for c in all_containers]
+            all_operational = all([s == 'running' for s in all_stati])
+
+        return {
+            'mgmt_container': mgmt_container,
+            'nfd_container': nfd_container,
+            'grafana_container': grafana_container,
+            'crate_container': crate_container,
+            'mongo_container': mongo_container,
+            'orion_container': orion_container,
+            'quantumleap_container': quantumleap_container,
+            'link_quality_handler_container': link_quality_handler_container,
+            'ndn_adapter_container': ndn_adapter_container,
+            'all_operational': all_operational,
+            'boards_cnt': Boards.objects.all().count(),
+            'nfd_ip': Settings.objects.first().ndn_router_ip if Settings.objects.first() else '<Empty>'
         }
 
 
@@ -166,13 +236,7 @@ class RegisterBoard(View):
         board.save()
 
         # Try register board at NFD
-        try:
-            if os.getenv("DEBUG") == "true":
-                docker_client = docker.DockerClient(base_url='tcp://192.168.178.179:2375')
-            else:
-                docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
-            docker_client.ping()
-
+        if docker_client := get_docker_client():
             try:
                 nfd_container = self._get_nfd_container(docker_client)
                 cmd_result1 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/{deviceId}"')
@@ -192,10 +256,6 @@ class RegisterBoard(View):
                     print(f'Added NFD routes for {deviceId} ({deviceIp})')
             except Exception as e:
                 print(f"Failed to register NFD route in docker. Exception: {e}")
-
-        except Exception:
-            print('Could not connect to docker daemon')
-
 
         return HttpResponse("OK")
 

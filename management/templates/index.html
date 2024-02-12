@@ -6,6 +6,489 @@
 {% endblock %}
 
 
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+
 {% block content %}
-   Content
+
+    <h2>NDN Management Dashboard</h2>
+    <br>
+
+    <table class="infra-status">
+        <tr>
+            <th>Infrastructure Status:&nbsp;&nbsp;&nbsp;&nbsp;</th>
+            <td>
+                {% if all_operational %}
+                    <span class="badge bg-success status-badge">Operational</span>
+                {% else %}
+                    <span class="badge bg-danger status-badge">Errors</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Registered Boards:</th>
+            <td>{{ boards_cnt }}</td>
+        </tr>
+        <tr>
+            <th>NFD IP:</th>
+            <td>{{ nfd_ip }}</td>
+        </tr>
+    </table>
+
+
+    <br>
+    <br>
+    <hr>
+    <br>
+
+    <h2>Infrastructure Status</h2>
+    <br>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/django.png' %}" width="60" class="service-logo" alt="Logo">
+                    <span class="title">Management Server</span>
+                    {% if mgmt_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if mgmt_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ mgmt_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ mgmt_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ mgmt_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if mgmt_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ mgmt_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/ndn_logo.png' %}" width="30" class="service-logo" alt="Logo">
+                    <span class="title">NFD</span>
+                    {% if nfd_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if nfd_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ nfd_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ nfd_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ nfd_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if nfd_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ nfd_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/grafana.png' %}" width="30" class="service-logo" alt="Logo">
+                    <span class="title">Grafana</span>
+                    {% if grafana_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if grafana_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ grafana_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ grafana_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ grafana_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if grafana_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ grafana_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/crate.png' %}" width="30" class="service-logo" alt="Logo">
+                    <span class="title">CrateDB</span>
+                    {% if crate_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if crate_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ crate_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ crate_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ crate_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if crate_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ crate_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/mongodb.png' %}" width="30" class="service-logo" alt="Logo">
+                    <span class="title">MongoDB</span>
+                    {% if mongo_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if mongo_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ mongo_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ mongo_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ mongo_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if mongo_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ mongo_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/fiware.png' %}" width="30" class="service-logo" alt="Logo">
+                    <span class="title">Fiware Orion</span>
+                    {% if orion_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if orion_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ orion_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ orion_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ orion_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if orion_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ orion_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/fiware.png' %}" width="30" class="service-logo" alt="Logo">
+                    <span class="title">Fiware Quantumleap</span>
+                    {% if quantumleap_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if quantumleap_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ quantumleap_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ quantumleap_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ quantumleap_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if quantumleap_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ quantumleap_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/java.png' %}" width="20" class="service-logo" alt="Logo">
+                    <span class="title">Link Quality Handler</span>
+                    {% if link_quality_handler_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if link_quality_handler_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ link_quality_handler_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ link_quality_handler_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ link_quality_handler_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if link_quality_handler_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ link_quality_handler_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-header d-flex flex-row">
+                    <img src="{% static 'img/java.png' %}" width="20" class="service-logo" alt="Logo">
+                    <span class="title">Fiware NDN Adapter</span>
+                    {% if ndn_adapter_container != None %}
+                        <span class="badge bg-success status-badge">Online</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Offline</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body body">
+                    {% if ndn_adapter_container != None %}
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Container Name</div>
+                                <div>{{ ndn_adapter_container.name }}</div>
+                            </div>
+                            <div class="labeled-text">
+                                <div>Container ID</div>
+                                <div>{{ ndn_adapter_container.short_id }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Image</div>
+                                <div>{{ ndn_adapter_container.image.tags.0 }}</div>
+                            </div>
+                        </div>
+                        <div class="row card-row">
+                            <div class="labeled-text">
+                                <div>Status</div>
+                                <div>
+                                    {% if ndn_adapter_container.status == 'running' %}
+                                        <span class="badge bg-success status-badge">running</span>
+                                    {% else %}
+                                        <span class="badge bg-warning status-badge">{{ ndn_adapter_container.status }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <span class="offline">Offline</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

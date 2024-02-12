@@ -1,2 +1,4 @@
 venv/
 db/db.sqlite3
+
+testing*.py
