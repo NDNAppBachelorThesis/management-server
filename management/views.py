@@ -241,6 +241,7 @@ class RegisterBoard(View):
                 nfd_container = self._get_nfd_container(docker_client)
                 cmd_result1 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/{deviceId}"')
                 cmd_result2 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/discovery"')
+                cmd_result3 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/linkqualitycheck"')
 
                 if cmd_result1.exit_code != 0:
                     print(f'Failed to add NFD route for {deviceId} ({deviceIp}).\n'
@@ -252,6 +253,11 @@ class RegisterBoard(View):
                           f'Exit code: {cmd_result2.exit_code}\n'
                           f'Output:\n '
                           f'{cmd_result2.output.decode()}')
+                elif cmd_result3.exit_code != 0:
+                    print(f'Failed to add NFD discovery route for {deviceId} ({deviceIp}).\n'
+                          f'Exit code: {cmd_result3.exit_code}\n'
+                          f'Output:\n '
+                          f'{cmd_result3.output.decode()}')
                 else:
                     print(f'Added NFD routes for {deviceId} ({deviceIp})')
             except Exception as e:
