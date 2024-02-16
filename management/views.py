@@ -48,9 +48,9 @@ class NDNUtilMixin(LoginRequiredMixin):
 class IndexView(NDNUtilMixin, TemplateView):
     template_name = "index.html"
 
-    def _get_container_by_name(self, containers: List[Container], name=None):
+    def _get_service_container(self, containers: List[Container], label_name=None):
         for container in containers:
-            if name and container.name == name:
+            if container.labels.get('de.matthes.ndn_app') == label_name:
                 return container
 
     def get_context_data(self, **kwargs):
@@ -68,15 +68,15 @@ class IndexView(NDNUtilMixin, TemplateView):
 
         if docker_client := get_docker_client():
             containers = docker_client.containers.list()
-            mgmt_container = self._get_container_by_name(containers, 'ndn-app-management-1')
-            nfd_container = self._get_container_by_name(containers, 'ndn-app-nfd-1')
-            grafana_container = self._get_container_by_name(containers, 'ndn-app-grafana-1')
-            crate_container = self._get_container_by_name(containers, 'ndn-app-crate-1')
-            mongo_container = self._get_container_by_name(containers, 'ndn-app-mongo-db-1')
-            orion_container = self._get_container_by_name(containers, "ndn-app-orion-1")
-            quantumleap_container = self._get_container_by_name(containers, 'ndn-app-quantumleap-1')
-            link_quality_handler_container = self._get_container_by_name(containers, 'ndn-app-ndn-link-quality-handler-1')
-            ndn_adapter_container = self._get_container_by_name(containers, 'ndn-app-ndn-adapter-1')
+            mgmt_container = self._get_service_container(containers, 'management')
+            nfd_container = self._get_service_container(containers, 'nfd')
+            grafana_container = self._get_service_container(containers, 'grafana')
+            crate_container = self._get_service_container(containers, 'crate')
+            mongo_container = self._get_service_container(containers, 'mongo')
+            orion_container = self._get_service_container(containers, "fiware-orion")
+            quantumleap_container = self._get_service_container(containers, 'quantumleap')
+            link_quality_handler_container = self._get_service_container(containers, 'ndn-link-quality-handler')
+            ndn_adapter_container = self._get_service_container(containers, 'ndn-adapter')
 
             all_containers = [
                 mgmt_container, nfd_container, grafana_container, crate_container, mongo_container, orion_container,
