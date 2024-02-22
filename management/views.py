@@ -42,13 +42,25 @@ def get_docker_client():
 
 
 class NDNUtilMixin(LoginRequiredMixin):
+    """
+    A mixin, which configures the required login
+    """
+
     login_url = 'login'
 
 
 class IndexView(NDNUtilMixin, TemplateView):
+    """
+    The index page, which shows a nice overview
+    """
+
     template_name = "index.html"
 
     def _get_service_container(self, containers: List[Container], label_name=None):
+        """
+        Filters all available containers for a given label
+        """
+
         for container in containers:
             if container.labels.get('de.matthes.ndn_app') == label_name:
                 return container
@@ -66,6 +78,7 @@ class IndexView(NDNUtilMixin, TemplateView):
 
         all_operational = None
 
+        # Try to get all relevant containers
         if docker_client := get_docker_client():
             containers = docker_client.containers.list()
             mgmt_container = self._get_service_container(containers, 'management')
@@ -106,13 +119,16 @@ class IndexView(NDNUtilMixin, TemplateView):
 
 
 class LoginView(TemplateView):
+    """
+    The login page
+    """
+
     template_name = 'login.html'
 
     def post(self, request: WSGIRequest):
         path = request.GET.get('next') or reverse('index')
         username = request.POST.get('username')
         password = request.POST.get('password')
-        remember_me = request.POST.get('remember-me') == 'on'
 
         user = authenticate(request, username=username, password=password)
 
@@ -129,6 +145,9 @@ class LoginView(TemplateView):
 
 
 class LogoutView(NDNUtilMixin, View):
+    """
+    Invalidates the current session and redirects to the login page
+    """
 
     def get(self, request: WSGIRequest):
         logout(request)
@@ -136,6 +155,10 @@ class LogoutView(NDNUtilMixin, View):
 
 
 class BoardsView(NDNUtilMixin, TemplateView):
+    """
+    Lists all boards and their infos
+    """
+
     template_name = "boards.html"
 
     def get_context_data(self, **kwargs):
@@ -148,6 +171,10 @@ class BoardsView(NDNUtilMixin, TemplateView):
 
 
 class UpdateView(NDNUtilMixin, TemplateView):
+    """
+    The view for OTA updates.
+    Note: The actual updating is done from the clients browser. This view has nothing to do with it
+    """
     template_name = "update.html"
 
     def get_context_data(self):
@@ -159,6 +186,9 @@ class UpdateView(NDNUtilMixin, TemplateView):
 
 
 class FirmwareUpdateCompleteView(NDNUtilMixin, View):
+    """
+    Used by the UpdateView to notify the server when an OTA update finished
+    """
 
     def post(self, request, board_id: int):
 
@@ -177,6 +207,11 @@ class FirmwareUpdateCompleteView(NDNUtilMixin, View):
 
 
 class SettingsView(NDNUtilMixin, TemplateView):
+    """
+    The view to modify the settings.
+    Currently only the NFD IP is a setting.
+    """
+
     template_name = 'settings.html'
 
     def post(self, request):
@@ -197,6 +232,11 @@ class SettingsView(NDNUtilMixin, TemplateView):
 
 
 class LogsView(NDNUtilMixin, TemplateView):
+    """
+    View, which displays the logs of an ESP32 to the user.
+    The logs are just grabbed from the devices HTTP log page
+    """
+
     template_name = 'logs.html'
 
     def get_context_data(self, board_id: int):
@@ -218,51 +258,57 @@ class LogsView(NDNUtilMixin, TemplateView):
 
 # -----  API views  -----
 
-
+# CSRF must be disabled for all APIs
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterBoard(View):
+    """
+    Registers a board
+    """
 
     def _get_nfd_container(self, docker_client: docker.DockerClient):
+        """
+        Filters all available containers for the NFD container
+        """
+
         containers = docker_client.containers.list()
         for container in containers:
-            for tag in container.image.tags:
-                if tag.startswith('derteufelqwe/ndn-nfd'):
-                    return container
+            if container.labels.get('de.matthes.ndn_app') == 'nfd':
+                return container
 
     def post(self, request: WSGIRequest):
         data = json.loads(request.body)
-        deviceIp = data["ip"]
-        deviceId = data["deviceId"]
+        device_ip = data["ip"]
+        device_id = data["deviceId"]
 
-        board = Boards.objects.get_or_create(device_id=data['deviceId'])[0]
-        board.ip = deviceIp
+        board = Boards.objects.get_or_create(device_id=device_id)[0]
+        board.ip = device_ip
         board.save()
 
         # Try register board at NFD
         if docker_client := get_docker_client():
             try:
                 nfd_container = self._get_nfd_container(docker_client)
-                cmd_result1 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/{deviceId}"')
-                cmd_result2 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/discovery"')
-                cmd_result3 = nfd_container.exec_run(f'sh addNode.sh "{deviceIp}" "/esp/linkqualitycheck"')
+                cmd_result1 = nfd_container.exec_run(f'sh addNode.sh "{device_ip}" "/esp/{device_id}"')
+                cmd_result2 = nfd_container.exec_run(f'sh addNode.sh "{device_ip}" "/esp/discovery"')
+                cmd_result3 = nfd_container.exec_run(f'sh addNode.sh "{device_ip}" "/esp/linkqualitycheck"')
 
                 if cmd_result1.exit_code != 0:
-                    print(f'Failed to add NFD route for {deviceId} ({deviceIp}).\n'
+                    print(f'Failed to add NFD route for {device_id} ({device_ip}).\n'
                           f'Exit code: {cmd_result1.exit_code}\n'
                           f'Output:\n '
                           f'{cmd_result1.output.decode()}')
                 elif cmd_result2.exit_code != 0:
-                    print(f'Failed to add NFD discovery route for {deviceId} ({deviceIp}).\n'
+                    print(f'Failed to add NFD discovery route for {device_id} ({device_ip}).\n'
                           f'Exit code: {cmd_result2.exit_code}\n'
                           f'Output:\n '
                           f'{cmd_result2.output.decode()}')
                 elif cmd_result3.exit_code != 0:
-                    print(f'Failed to add NFD discovery route for {deviceId} ({deviceIp}).\n'
+                    print(f'Failed to add NFD discovery route for {device_id} ({device_ip}).\n'
                           f'Exit code: {cmd_result3.exit_code}\n'
                           f'Output:\n '
                           f'{cmd_result3.output.decode()}')
                 else:
-                    print(f'Added NFD routes for {deviceId} ({deviceIp})')
+                    print(f'Added NFD routes for {device_id} ({device_ip})')
             except Exception as e:
                 print(f"Failed to register NFD route in docker. Exception: {e}")
 
@@ -271,6 +317,9 @@ class RegisterBoard(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PingView(View):
+    """
+    View for the ESP32 boards to ping to
+    """
 
     def post(self, request, device_id: int):
 
@@ -287,6 +336,9 @@ class PingView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SettingsApiView(View):
+    """
+    View for the ESP32 boards to request the NFD IP from
+    """
 
     def get(self, request):
         settings = Settings.get_instance()

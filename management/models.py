@@ -4,6 +4,10 @@ from django.db import models
 
 
 class Boards(models.Model):
+    """
+    Stores all known ESP32 boards
+    """
+
     id                    = models.BigAutoField(primary_key=True)
     device_id             = models.IntegerField(null=False)
     name                  = models.TextField(null=True)
@@ -24,8 +28,13 @@ class Boards(models.Model):
 
 
 class Settings(models.Model):
+    """
+    Stores the overall settings. This table should only have one row.
+    It's kinda a database abuse but whatever. It works.
+    """
+
     id              = models.BigAutoField(primary_key=True)
-    ndn_router_ip   = models.TextField(null=True, default='')
+    ndn_router_ip   = models.TextField(null=True, default='')   # The IP for the NFD server
 
     @staticmethod
     def get_instance() -> 'Settings':
