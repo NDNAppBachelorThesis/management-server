@@ -86,6 +86,8 @@ class IndexView(NDNUtilMixin, TemplateView):
             all_stati = ['offline' if c is None else c.status for c in all_containers]
             all_operational = all([s == 'running' for s in all_stati])
 
+        all_boards = Boards.objects.all()
+
         return {
             'mgmt_container': mgmt_container,
             'nfd_container': nfd_container,
@@ -97,7 +99,8 @@ class IndexView(NDNUtilMixin, TemplateView):
             'link_quality_handler_container': link_quality_handler_container,
             'ndn_adapter_container': ndn_adapter_container,
             'all_operational': all_operational,
-            'boards_cnt': Boards.objects.all().count(),
+            'boards_cnt': all_boards.count(),
+            'active_boards_cnt': sum([1 for b in all_boards if b.active]),
             'nfd_ip': Settings.objects.first().ndn_router_ip if Settings.objects.first() else '<Empty>'
         }
 
